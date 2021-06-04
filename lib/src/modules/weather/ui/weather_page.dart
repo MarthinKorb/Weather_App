@@ -147,12 +147,18 @@ class _WeatherPageState extends State<WeatherPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(snapshot.data.list[index]["name"]),
+                                        Text(
+                                          snapshot.data.list[index]["name"],
+                                          style: GoogleFonts.abel(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                         Text(
                                           'Sensação térmica: ${Utils.convertKelvinToCelsius(
                                             snapshot.data.list[index]["main"]
                                                 ["feels_like"],
                                           )}',
+                                          style: GoogleFonts.abel(fontSize: 16),
                                         ),
                                       ],
                                     ),
@@ -161,11 +167,25 @@ class _WeatherPageState extends State<WeatherPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(''),
-                                        Text(
-                                          'Sensação térmica: ${Utils.convertKelvinToCelsius(
-                                            snapshot.data.list[index]["main"]
-                                                ["feels_like"],
-                                          )}',
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Temp. mínima: ${Utils.convertKelvinToCelsius(
+                                                snapshot.data.list[index]
+                                                    ["main"]["temp_min"],
+                                              )}',
+                                              style: GoogleFonts.abel(
+                                                  fontSize: 16),
+                                            ),
+                                            Text(
+                                              'Temp. máxima: ${Utils.convertKelvinToCelsius(
+                                                snapshot.data.list[index]
+                                                    ["main"]["temp_max"],
+                                              )}',
+                                              style: GoogleFonts.abel(
+                                                  fontSize: 16),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
