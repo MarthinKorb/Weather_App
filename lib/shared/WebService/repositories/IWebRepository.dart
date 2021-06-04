@@ -1,5 +1,5 @@
-import 'package:weather_app/src/modules/weather/infra/model/weather_response.dart';
+import 'package:http/http.dart';
 
 abstract class IWebRepository {
-  Future<WeatherResponse> getWeather(String url);
+  Future<Response> getWeather(String url);
 }

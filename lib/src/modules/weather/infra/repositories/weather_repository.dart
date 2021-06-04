@@ -11,7 +11,8 @@ class WeatherRepository extends IWeatherRepository {
   }
 
   @override
-  Future<WeatherResponse> find(String city) async {
-    return await _webRepository.getWeather(city);
+  Future<WeatherResponse> findByCity(String city) async {
+    final response = await _webRepository.getWeather(city);
+    return WeatherResponse.fromJson(response.body);
   }
 }

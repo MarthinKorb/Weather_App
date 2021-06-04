@@ -1,5 +1,5 @@
 import 'package:weather_app/src/modules/weather/infra/model/weather_response.dart';
 
 abstract class IWeatherRepository {
-  Future<WeatherResponse> find(String city);
+  Future<WeatherResponse> findByCity(String city);
 }
