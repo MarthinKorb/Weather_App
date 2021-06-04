@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather_app/shared/LocationService/infra/geolocator/repositories/LocationRepository.dart';
+import 'package:weather_app/shared/utils/utils.dart';
 import 'package:weather_app/src/modules/weather/infra/model/weather_response.dart';
+import 'package:weather_app/src/modules/weather/infra/model/weather_response2.dart';
 import 'package:weather_app/src/modules/weather/ui/weather_bloc.dart';
 import 'package:weather_app/src/modules/weather/ui/weather_widget.dart';
 
@@ -14,22 +16,21 @@ class WeatherPage extends StatefulWidget {
 
 class _WeatherPageState extends State<WeatherPage> {
   final _weatherBloc = WeatherBloc();
-  @override
-  void initState() {
-    LocationRepository()
-        .determinePosition()
-        .then((value) => _weatherBloc.inputLatLong.add(value));
-    // .then((value) => print(value));
-    Future.delayed(Duration(seconds: 3));
+  final _formKey = GlobalKey<FormState>();
 
-    super.initState();
+  @override
+  void dispose() {
+    super.dispose();
+    // _weatherBloc.inputCity.close();
+    _weatherBloc.inputLatLong.close();
   }
 
   @override
   Widget build(BuildContext context) {
+    LocationRepository()
+        .determinePosition()
+        .then((value) => _weatherBloc.inputLatLong.add(value));
     // final weatherProvider = Provider.of<WeatherProvider>(context);
-
-    final _formKey = GlobalKey<FormState>();
 
     String _cityName;
 
@@ -122,7 +123,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   return WeatherWidget(weather: snapshot.data);
                 },
               ),
-              StreamBuilder<WeatherResponse>(
+              StreamBuilder<WeatherResponse2>(
                 stream: _weatherBloc.outputPosition,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -132,7 +133,54 @@ class _WeatherPageState extends State<WeatherPage> {
                     return Container();
                   }
 
-                  return WeatherWidget(weather: snapshot.data);
+                  return Container(
+                    child: Expanded(
+                      child: ListView.builder(
+                        itemCount: snapshot.data.list.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: Container(
+                              child: ListTile(
+                                title: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(snapshot.data.list[index]["name"]),
+                                        Text(
+                                          'Sensação térmica: ${Utils.convertKelvinToCelsius(
+                                            snapshot.data.list[index]["main"]
+                                                ["feels_like"],
+                                          )}',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(''),
+                                        Text(
+                                          'Sensação térmica: ${Utils.convertKelvinToCelsius(
+                                            snapshot.data.list[index]["main"]
+                                                ["feels_like"],
+                                          )}',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Text(
+                                  '${snapshot.data.list[index]["weather"][0]["description"]} - ${Utils.convertKelvinToCelsius(snapshot.data.list[index]["main"]["temp"])}',
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
                 },
               ),
             ],
