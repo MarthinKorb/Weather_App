@@ -13,6 +13,7 @@ Aplicação que permite você criar, listar, editar, deletar e favoritar seus pr
 ---
 
 <p align="center" border-radius="4px">
+<img src=".github/exp3.gif" width=300">
 <img src=".github/exp1.png" width=300">
 <img src=".github/exp2.png" width=300">
 </p>
