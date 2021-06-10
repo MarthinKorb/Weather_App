@@ -16,9 +16,16 @@ class CityNotFoundWidget extends StatelessWidget {
           alignment: Alignment.center,
           height: MediaQuery.of(context).size.height * 0.5,
           // width: double.infinity,
-          child: Text(
-            'Cidade não encontrada...',
-            style: GoogleFonts.abel(fontSize: 22, fontWeight: FontWeight.bold),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Cidade não encontrada...',
+                style:
+                    GoogleFonts.abel(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
       ),

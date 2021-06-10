@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather_app/shared/LocationService/infra/geolocator/repositories/LocationRepository.dart';
-import 'package:weather_app/shared/utils/utils.dart';
 import 'package:weather_app/src/modules/weather/infra/model/weather_response.dart';
 import 'package:weather_app/src/modules/weather/infra/model/weather_response2.dart';
+import 'package:weather_app/src/modules/weather/ui/around_cities_widget.dart';
 import 'package:weather_app/src/modules/weather/ui/weather_bloc.dart';
 import 'package:weather_app/src/modules/weather/ui/weather_widget.dart';
 
@@ -17,11 +17,18 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   final _weatherBloc = WeatherBloc();
   final _formKey = GlobalKey<FormState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
     super.dispose();
-    // _weatherBloc.inputCity.close();
+    _weatherBloc.inputCity.close();
     _weatherBloc.inputLatLong.close();
   }
 
@@ -30,7 +37,6 @@ class _WeatherPageState extends State<WeatherPage> {
     LocationRepository()
         .determinePosition()
         .then((value) => _weatherBloc.inputLatLong.add(value));
-    // final weatherProvider = Provider.of<WeatherProvider>(context);
 
     String _cityName;
 
@@ -70,8 +76,6 @@ class _WeatherPageState extends State<WeatherPage> {
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search_outlined),
                     onPressed: () async {
-                      // await _handleRequestData(
-                      //     _formKey, _cityName, weatherProvider);
                       _weatherBloc.inputCity.add(_cityName);
                     },
                   ),
@@ -83,48 +87,22 @@ class _WeatherPageState extends State<WeatherPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () {
+          return LocationRepository()
+              .determinePosition()
+              .then((value) => _weatherBloc.inputLatLong.add(value));
+        },
         child: Container(
           height: MediaQuery.of(context).size.height,
           color: Colors.black12.withOpacity(0.04),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Consumer<WeatherProvider>(
-              //   builder: (context, snapshot, _) {
-              //     if (snapshot.weather == null) {
-              //       return Center(
-              //         child: Container(
-              //           child: Text(''),
-              //         ),
-              //       );
-              //     }
-              //     return WeatherWidget(weather: snapshot.weather);
-              //   },
-              // ),
               StreamBuilder<WeatherResponse>(
                 stream: _weatherBloc.outputByCity,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return CityNotFoundWidget();
-                  }
-                  if (!snapshot.hasData) {
-                    return Container(
-                        // child: FutureBuilder(
-                        //   future: LocationRepository().determinePosition(),
-                        //   builder: (context, snapshot) {
-                        //     return Center(
-                        //       child: Text(snapshot.data.toString()),
-                        //     );
-                        //   },
-                        // ),
-                        );
-                  }
-
-                  return WeatherWidget(weather: snapshot.data);
-                },
-              ),
-              StreamBuilder<WeatherResponse2>(
-                stream: _weatherBloc.outputPosition,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return CityNotFoundWidget();
@@ -133,75 +111,32 @@ class _WeatherPageState extends State<WeatherPage> {
                     return Container();
                   }
 
-                  return Container(
-                    child: Expanded(
-                      child: ListView.builder(
-                        itemCount: snapshot.data.list.length,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            child: Container(
-                              child: ListTile(
-                                title: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          snapshot.data.list[index]["name"],
-                                          style: GoogleFonts.abel(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'Sensação térmica: ${Utils.convertKelvinToCelsius(
-                                            snapshot.data.list[index]["main"]
-                                                ["feels_like"],
-                                          )}',
-                                          style: GoogleFonts.abel(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(''),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              'Temp. mínima: ${Utils.convertKelvinToCelsius(
-                                                snapshot.data.list[index]
-                                                    ["main"]["temp_min"],
-                                              )}',
-                                              style: GoogleFonts.abel(
-                                                  fontSize: 16),
-                                            ),
-                                            Text(
-                                              'Temp. máxima: ${Utils.convertKelvinToCelsius(
-                                                snapshot.data.list[index]
-                                                    ["main"]["temp_max"],
-                                              )}',
-                                              style: GoogleFonts.abel(
-                                                  fontSize: 16),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                subtitle: Text(
-                                  '${snapshot.data.list[index]["weather"][0]["description"]} - ${Utils.convertKelvinToCelsius(snapshot.data.list[index]["main"]["temp"])}',
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
+                  return WeatherWidget(weather: snapshot.data);
                 },
+              ),
+              Container(
+                child: StreamBuilder<WeatherResponse2>(
+                  stream: _weatherBloc.outputPosition,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return CityNotFoundWidget();
+                    }
+                    if (!snapshot.hasData) {
+                      return Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 18),
+                          Text(
+                            'Buscando os dados das cidades próximas...',
+                            style: GoogleFonts.abel(fontSize: 16),
+                          )
+                        ],
+                      );
+                    }
+
+                    return AroundCitiesWidget(weather: snapshot.data);
+                  },
+                ),
               ),
             ],
           ),
@@ -209,13 +144,4 @@ class _WeatherPageState extends State<WeatherPage> {
       ),
     );
   }
-
-  // Future<void> _handleRequestData(GlobalKey<FormState> _formKey,
-  //     String _cityName, WeatherProvider weatherProvider) async {
-  //   if (_formKey.currentState.validate()) {
-  //     final weather = await WeatherRepository().find(_cityName);
-
-  //     weatherProvider.setWeather(weather);
-  //   }
-  // }
 }

@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:weather_app/shared/WebService/repositories/IWebRepository.dart';
 import '../../../constants.dart';
@@ -14,6 +15,19 @@ class WebRepository extends IWebRepository {
 
     if (response.statusCode != 200) {
       throw Exception('Cidade não existe');
+    }
+
+    return response;
+  }
+
+  String _url(Position position) =>
+      'https://api.openweathermap.org/data/2.5/find?lat=${position.latitude}&lon=${position.longitude}&cnt=10&appid=$API_KEY';
+  @override
+  Future<http.Response> getWeatherByPosition(Position position) async {
+    final response = await http.get(Uri.tryParse(_url(position)));
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro na consulta de cidades');
     }
 
     return response;
