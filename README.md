@@ -1,9 +1,8 @@
-# Shopping Challenge
+# Weather app
 
-**Lista de Produtos**
 
-Aplicação que permite você criar, listar, editar, deletar e favoritar seus produtos, adicionar items ao seu carrinho e criar listas de compras a partir dos mesmos.
 
+Aplicação que permite você pesquisar a situação climática de uma cidade específica.
 ---
 
 ### Tecnologia Utilizada:
@@ -24,7 +23,7 @@ Aplicação que permite você criar, listar, editar, deletar e favoritar seus pr
 
 Clone esse repositório rodando o comando:
 
-    git clone https://github.com/MarthinKorb/shopping_cart.git
+    git clone https://github.com/MarthinKorb/weather_app.git
 
 ---
 
